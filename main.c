@@ -7,7 +7,7 @@
 #define MAX_ARGS 64
 
 void init_shell();
-int tokenize_cmd(char *buf[], const char *input);
+int tokenize_cmd(char *buf[], char *input);
 void exec_process(const char *cmd[]);
 
 int main() {
@@ -44,8 +44,8 @@ void init_shell() {
 /* tokenize_cmd breaks input strings into an array of tokens.
  * NULL pointer is appended to the end of the array
 */
-int tokenize_cmd(char *buf[], const char *input) {
-    char *delim = " ";
+int tokenize_cmd(char *buf[], char *input) {
+    const char *delim = " ";
     char *token =  strtok((char *)input, delim);
 
     int i = 0;
