@@ -10,20 +10,26 @@
 #define INPUT_BUFFER 512 // half a kilobyte
 #define MAX_ARGS 64
 
-void init_shell();
+int init_shell();
 int tokenize_input(char *buf[], char *input);
 void exec_process(char *const args[]);
 
 int main() {
-    init_shell();
+    if (init_shell()) {
+        fprintf(stderr, "failed running shell");
+        exit(1);
+    };
     return 0;
 }
 
 // init_shell when called starts an infinite loop, prompt the user
 // and waits for users input.
-void init_shell() {
+int init_shell() {
     const size_t buffer_size = INPUT_BUFFER;
     char *input = malloc(sizeof(char) * buffer_size);
+    if (input == NULL) {
+        return 1;
+    }
 
     while (true) {
         char *args[MAX_ARGS];
@@ -36,6 +42,7 @@ void init_shell() {
     }
 
     free(input);
+    return 0;
 }
 
 /* tokenize_input breaks input strings into an array of tokens.
@@ -46,7 +53,7 @@ int tokenize_input(char *buf[], char *input) {
     char *token =  strtok(input, delim);
 
     int i = 0;
-    while (token != NULL) {
+    while (token != NULL && i <= MAX_ARGS - 1) {
         buf[i++] = token;
         token = strtok(NULL, delim);
     }
