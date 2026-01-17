@@ -7,11 +7,11 @@
 #include <unistd.h>
 // #include <wait.h>
 
-#define INPUT_BUFFER 512
+#define INPUT_BUFFER 512 // half a kilobyte
 #define MAX_ARGS 64
 
 void init_shell();
-int tokenize_cmd(char *buf[], char *input);
+int tokenize_input(char *buf[], char *input);
 void exec_process(char *const args[]);
 
 int main() {
@@ -23,29 +23,26 @@ int main() {
 // and waits for users input.
 void init_shell() {
     const size_t buffer_size = INPUT_BUFFER;
+    char *input = malloc(sizeof(char) * buffer_size);
+
     while (true) {
-        char input[buffer_size];
         char *args[MAX_ARGS];
 
         printf("$: "); // prompt
         fgets(input, buffer_size, stdin);
 
-        // remove newline from input
-        size_t input_len = strlen(input);
-        input[input_len - 1] = '\0';
-
-        int token_len;
-        token_len = tokenize_cmd(args, input); // tokenize command
-
+        tokenize_input(args, input); // tokenize command
         exec_process(args);
     }
+
+    free(input);
 }
 
-/* tokenize_cmd breaks input strings into an array of tokens.
- * NULL pointer is appended to the end of the array
+/* tokenize_input breaks input strings into an array of tokens.
+ * a NULL pointer is appended to the end of the array
 */
-int tokenize_cmd(char *buf[], char *input) {
-    const char *delim = " ";
+int tokenize_input(char *buf[], char *input) {
+    const char *delim = " \n"; // uses space, and newline as delimiter
     char *token =  strtok(input, delim);
 
     int i = 0;
@@ -59,7 +56,7 @@ int tokenize_cmd(char *buf[], char *input) {
 }
 
 /*
- * Creates and Replaces the new process with cmd specifies in args
+ * Creates and Replaces the new process with program specifies in args.
  * args is a NULL terminated array where args[0] is the program name
  */
 void exec_process(char *const args[]) {
